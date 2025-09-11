@@ -76,18 +76,18 @@ func (l *Lexer) stripLine(line string) string {
 // Tokenize a single line into tokens
 func (l *Lexer) tokenize(s string) []Token {
 	var tokens []Token
-	col := 8 // actual COBOL text starts at col 8
+	col := 7 // actual COBOL text starts at col 8 (col is incremented at start of loop)
 
 	reader := strings.NewReader(s)
 	for {
 		ch, _, err := reader.ReadRune()
+		col++
 		if err == io.EOF {
 			break
 		}
 
 		// Skip whitespace
 		if unicode.IsSpace(ch) {
-			col++
 			continue
 		}
 
@@ -98,9 +98,11 @@ func (l *Lexer) tokenize(s string) []Token {
 			ident := string(ch)
 			for {
 				r, _, err := reader.ReadRune()
+				col++
 				if err == io.EOF || !(unicode.IsLetter(r) || unicode.IsDigit(r) || r == '-') {
 					if err == nil {
 						reader.UnreadRune()
+						col--
 					}
 					break
 				}
@@ -115,9 +117,11 @@ func (l *Lexer) tokenize(s string) []Token {
 			num := string(ch)
 			for {
 				r, _, err := reader.ReadRune()
+				col++
 				if err == io.EOF || !(unicode.IsDigit(r)) {
 					if err == nil {
 						reader.UnreadRune()
+						col--
 					}
 					break
 				}
@@ -133,6 +137,7 @@ func (l *Lexer) tokenize(s string) []Token {
 			lit := ""
 			for {
 				r, _, err := reader.ReadRune()
+				col++
 				if err == io.EOF || r == quote {
 					break
 				}
