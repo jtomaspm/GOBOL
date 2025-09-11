@@ -15,7 +15,7 @@ const (
 	EOF     TokenType = "EOF"
 
 	// Identifiers + keywords
-	IDENTIFIER TokenType = "IDENT"
+	IDENTIFIER TokenType = "IDENTIFIER"
 	KEYWORD    TokenType = "KEYWORD"
 
 	// Literals
@@ -23,14 +23,14 @@ const (
 	STRING TokenType = "STRING"
 
 	// Symbols
-	PERIOD TokenType = "."
-	COMMA  TokenType = ","
-	LPAREN TokenType = "("
-	RPAREN TokenType = ")"
-	PLUS   TokenType = "+"
-	MINUS  TokenType = "-"
-	TIMES  TokenType = "*"
-	DIVIDE TokenType = "/"
+	PERIOD TokenType = "PERIOD" // .
+	COMMA  TokenType = "COMMA"  // ,
+	LPAREN TokenType = "LPAREN" // (
+	RPAREN TokenType = "RPAREN" // )
+	PLUS   TokenType = "PLUS"   // +
+	MINUS  TokenType = "MINUS"  // -
+	TIMES  TokenType = "TIMES"  // *
+	DIVIDE TokenType = "DIVIDE" // /
 
 	// Comments
 	COMMENT TokenType = "COMMENT"

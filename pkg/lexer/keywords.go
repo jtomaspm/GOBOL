@@ -1,5 +1,7 @@
 package lexer
 
+import "strings"
+
 var keywords = map[string]TokenType{
 	"IDENTIFICATION":  KEYWORD,
 	"DIVISION":        KEYWORD,
@@ -22,7 +24,7 @@ var keywords = map[string]TokenType{
 }
 
 func LookupIdentifier(identifier string) TokenType {
-	if tok, ok := keywords[identifier]; ok {
+	if tok, ok := keywords[strings.ToUpper(identifier)]; ok {
 		return tok
 	}
 	return IDENTIFIER

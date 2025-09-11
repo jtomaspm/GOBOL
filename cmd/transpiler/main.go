@@ -15,11 +15,7 @@ func main() {
 	defer f.Close()
 
 	l := lexer.New(f)
-	for {
-		tok := l.NextToken()
-		fmt.Printf("%+v\n", tok)
-		if tok.Type == lexer.EOF {
-			break
-		}
+	for _, token := range l.GetTokens() {
+		fmt.Printf("%+v\n", token)
 	}
 }

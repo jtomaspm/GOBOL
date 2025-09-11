@@ -11,17 +11,30 @@ type Lexer struct {
 	r    *bufio.Reader
 	line int
 	col  int
+	done bool
 }
 
 func New(r io.Reader) *Lexer {
-	return &Lexer{r: bufio.NewReader(r), line: 0, col: 0}
+	return &Lexer{r: bufio.NewReader(r), line: 0, col: 0, done: false}
 }
 
-func (l *Lexer) NextToken() Token {
+func (l *Lexer) GetTokens() []Token {
+	tokens := []Token{}
+	for {
+		tokens = append(tokens, l.nextLine()...)
+		if l.done {
+			break
+		}
+	}
+	return tokens
+}
+
+func (l *Lexer) nextLine() []Token {
 	for {
 		line, err := l.r.ReadString('\n')
 		if err == io.EOF && line == "" {
-			return Token{Type: EOF, Literal: "", Line: l.line, Column: l.col}
+			l.done = true
+			return []Token{Token{Type: EOF, Literal: "", Line: l.line, Column: l.col}}
 		}
 		l.line++
 
@@ -30,14 +43,15 @@ func (l *Lexer) NextToken() Token {
 
 		// If comment
 		if strings.HasPrefix(clean, "*") {
-			return Token{Type: COMMENT, Literal: strings.TrimSpace(clean), Line: l.line, Column: 7}
+			return []Token{Token{Type: COMMENT, Literal: strings.TrimSpace(clean), Line: l.line, Column: 7}}
 		}
 
 		// Tokenize remaining
 		tokens := l.tokenize(clean)
-		if len(tokens) > 0 {
-			return tokens[0] // Return first token, extend to buffer if needed
+		if len(tokens) == 0 {
+			continue
 		}
+		return tokens
 	}
 }
 
@@ -92,7 +106,7 @@ func (l *Lexer) tokenize(s string) []Token {
 				}
 				ident += string(r)
 			}
-			tokens = append(tokens, Token{Type: LookupIdentifier(strings.ToUpper(ident)), Literal: ident, Line: l.line, Column: startCol})
+			tokens = append(tokens, Token{Type: LookupIdentifier(ident), Literal: ident, Line: l.line, Column: startCol})
 			continue
 		}
 
@@ -101,7 +115,7 @@ func (l *Lexer) tokenize(s string) []Token {
 			num := string(ch)
 			for {
 				r, _, err := reader.ReadRune()
-				if err == io.EOF || !(unicode.IsDigit(r) || r == '/') {
+				if err == io.EOF || !(unicode.IsDigit(r)) {
 					if err == nil {
 						reader.UnreadRune()
 					}
