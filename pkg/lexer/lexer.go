@@ -158,13 +158,13 @@ func (l *Lexer) tokenize(s string) []Token {
 		case ')':
 			tokens = append(tokens, Token{Type: RPAREN, Literal: ")", Line: l.line, Column: startCol})
 		case '+':
-			tokens = append(tokens, Token{Type: PLUS, Literal: "+", Line: l.line, Column: startCol})
+			tokens = append(tokens, Token{Type: ADDITION, Literal: "+", Line: l.line, Column: startCol})
 		case '-':
-			tokens = append(tokens, Token{Type: MINUS, Literal: "-", Line: l.line, Column: startCol})
+			tokens = append(tokens, Token{Type: SUBTRACTION, Literal: "-", Line: l.line, Column: startCol})
 		case '*':
-			tokens = append(tokens, Token{Type: TIMES, Literal: "*", Line: l.line, Column: startCol})
+			tokens = append(tokens, Token{Type: MULTIPLICATION, Literal: "*", Line: l.line, Column: startCol})
 		case '/':
-			tokens = append(tokens, Token{Type: DIVIDE, Literal: "/", Line: l.line, Column: startCol})
+			tokens = append(tokens, Token{Type: DIVISION, Literal: "/", Line: l.line, Column: startCol})
 		default:
 			tokens = append(tokens, Token{Type: ILLEGAL, Literal: string(ch), Line: l.line, Column: startCol})
 		}
