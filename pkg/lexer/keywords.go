@@ -2,6 +2,7 @@ package lexer
 
 import "strings"
 
+// Reference: https://www.ibm.com/docs/en/cobol-zos/6.3.0?topic=appendixes-reserved-words
 var keywords = map[string]TokenType{
 	"ACCEPT":                KEYWORD,
 	"ACCESS":                KEYWORD,
