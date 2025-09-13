@@ -161,7 +161,7 @@ func (l *Lexer) tokenize(s string) []Token {
 			if err == nil {
 				switch r {
 				case '*':
-					tokens = append(tokens, Token{Type: GREATER_THAN_EQUAL, Literal: ">=", Line: l.line, Column: startCol})
+					tokens = append(tokens, Token{Type: EXPONENTIATION, Literal: "**", Line: l.line, Column: startCol})
 				case '>':
 					tokens = append(tokens, Token{Type: COMMENT_INDICATOR, Literal: "*>", Line: l.line, Column: startCol})
 					comment := ""
