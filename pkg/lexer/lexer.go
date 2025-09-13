@@ -34,7 +34,7 @@ func (l *Lexer) nextLine() []Token {
 		line, err := l.r.ReadString('\n')
 		if err == io.EOF && line == "" {
 			l.done = true
-			return []Token{Token{Type: EOF, Literal: "", Line: l.line, Column: l.col}}
+			return []Token{{Type: EOF, Literal: "", Line: l.line, Column: l.col}}
 		}
 		l.line++
 
@@ -43,7 +43,7 @@ func (l *Lexer) nextLine() []Token {
 
 		// If comment
 		if strings.HasPrefix(clean, "*") {
-			return []Token{Token{Type: COMMENT, Literal: strings.TrimSpace(clean), Line: l.line, Column: 7}}
+			return []Token{{Type: COMMENT, Literal: strings.TrimRight(clean[1:], " "), Line: l.line, Column: 7}}
 		}
 
 		// Tokenize remaining
@@ -149,6 +149,86 @@ func (l *Lexer) tokenize(s string) []Token {
 
 		// Symbols
 		switch ch {
+		case '+':
+			tokens = append(tokens, Token{Type: ADDITION, Literal: "+", Line: l.line, Column: startCol})
+		case '-':
+			tokens = append(tokens, Token{Type: SUBTRACTION, Literal: "-", Line: l.line, Column: startCol})
+		case '/':
+			tokens = append(tokens, Token{Type: DIVISION, Literal: "/", Line: l.line, Column: startCol})
+		case '*':
+			r, _, err := reader.ReadRune()
+			col++
+			if err == nil {
+				switch r {
+				case '*':
+					tokens = append(tokens, Token{Type: GREATER_THAN_EQUAL, Literal: ">=", Line: l.line, Column: startCol})
+				case '>':
+					tokens = append(tokens, Token{Type: COMMENT_INDICATOR, Literal: "*>", Line: l.line, Column: startCol})
+					comment := ""
+					comCol := col + 1
+					for {
+						r, _, err := reader.ReadRune()
+						col++
+						if err == io.EOF || r == '\n' {
+							break
+						}
+						comment += string(r)
+					}
+					tokens = append(tokens, Token{Type: COMMENT, Literal: strings.TrimRight(comment, " "), Line: l.line, Column: comCol})
+				default:
+					reader.UnreadRune()
+					col--
+					tokens = append(tokens, Token{Type: MULTIPLICATION, Literal: "*", Line: l.line, Column: startCol})
+				}
+			} else {
+				tokens = append(tokens, Token{Type: MULTIPLICATION, Literal: "*", Line: l.line, Column: startCol})
+			}
+		case '>':
+			r, _, err := reader.ReadRune()
+			col++
+			if err == nil {
+				switch r {
+				case '=':
+					tokens = append(tokens, Token{Type: GREATER_THAN_EQUAL, Literal: ">=", Line: l.line, Column: startCol})
+				case '>':
+					tokens = append(tokens, Token{Type: COMPILER_DIRECTIVE, Literal: ">>", Line: l.line, Column: startCol})
+				default:
+					reader.UnreadRune()
+					col--
+					tokens = append(tokens, Token{Type: GREATER_THAN, Literal: ">", Line: l.line, Column: startCol})
+				}
+			} else {
+				tokens = append(tokens, Token{Type: GREATER_THAN, Literal: ">", Line: l.line, Column: startCol})
+			}
+		case '<':
+			r, _, err := reader.ReadRune()
+			col++
+			if err == nil {
+				switch r {
+				case '=':
+					tokens = append(tokens, Token{Type: LESS_THAN_EQUAL, Literal: "<=", Line: l.line, Column: startCol})
+				case '>':
+					tokens = append(tokens, Token{Type: NOT_EQUAL, Literal: "<>", Line: l.line, Column: startCol})
+				default:
+					reader.UnreadRune()
+					col--
+					tokens = append(tokens, Token{Type: LESS_THAN, Literal: "<", Line: l.line, Column: startCol})
+				}
+			} else {
+				tokens = append(tokens, Token{Type: LESS_THAN, Literal: "<", Line: l.line, Column: startCol})
+			}
+		case '=':
+			r, _, err := reader.ReadRune()
+			col++
+			if err == nil && r == '=' {
+				tokens = append(tokens, Token{Type: PSEUDO_EQUAL, Literal: "==", Line: l.line, Column: startCol})
+			} else {
+				if err == nil {
+					reader.UnreadRune()
+					col--
+				}
+				tokens = append(tokens, Token{Type: EQUAL, Literal: "=", Line: l.line, Column: startCol})
+			}
 		case '.':
 			tokens = append(tokens, Token{Type: PERIOD, Literal: ".", Line: l.line, Column: startCol})
 		case ',':
@@ -157,14 +237,6 @@ func (l *Lexer) tokenize(s string) []Token {
 			tokens = append(tokens, Token{Type: LPAREN, Literal: "(", Line: l.line, Column: startCol})
 		case ')':
 			tokens = append(tokens, Token{Type: RPAREN, Literal: ")", Line: l.line, Column: startCol})
-		case '+':
-			tokens = append(tokens, Token{Type: ADDITION, Literal: "+", Line: l.line, Column: startCol})
-		case '-':
-			tokens = append(tokens, Token{Type: SUBTRACTION, Literal: "-", Line: l.line, Column: startCol})
-		case '*':
-			tokens = append(tokens, Token{Type: MULTIPLICATION, Literal: "*", Line: l.line, Column: startCol})
-		case '/':
-			tokens = append(tokens, Token{Type: DIVISION, Literal: "/", Line: l.line, Column: startCol})
 		default:
 			tokens = append(tokens, Token{Type: ILLEGAL, Literal: string(ch), Line: l.line, Column: startCol})
 		}
