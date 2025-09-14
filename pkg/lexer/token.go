@@ -7,6 +7,14 @@ type Token struct {
 	Column  int
 }
 
+func (t *Token) Character() int {
+	if t.Column > 0 {
+		return t.Column - 1
+	} else {
+		return 0
+	}
+}
+
 type TokenType string
 
 const (
